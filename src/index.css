@@ -1,0 +1,760 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #D4AF37;
+  --color-primary-dark: #b89528;
+  --color-primary-light: #f9f4e5;
+  --color-accent: #212121;
+  --color-accent-hover: #000000;
+}
+
+@layer base {
+  body {
+    background-color: #f5f6f8;
+    color: #212121;
+  }
+}
+
+/* Hide scrollbar utility */
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom responsive helper classes to bypass WordPress core .hidden conflict */
+@media (max-width: 639px) {
+  .qoracrm-hidden-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .qoracrm-hidden-tablet {
+    display: none !important;
+  }
+}
+
+/* WP Core overrides */
+.border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db !important;
+}
+
+/* WP Editor Customization */
+.qoracrm-wp-editor-wrapper {
+  background-color: #fff;
+  border: 1px solid #dadbdd;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 5px;
+}
+
+.qoracrm-wp-editor-wrapper .wp-media-buttons {
+  float: none;
+  position: absolute;
+  left: 15px;
+  top: 10px;
+}
+
+.qoracrm-wp-editor-wrapper .wp-media-buttons .insert-media {
+  background-color: #e8f2ff;
+  border-color: #e8f2ff;
+  border-radius: 6px;
+  color: #1a7efb;
+  font-weight: 500;
+  line-height: 1;
+  margin: 0;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.qoracrm-wp-editor-wrapper .wp-media-buttons .insert-media:hover {
+  background-color: #1a7efb;
+  border-color: #1a7efb;
+  color: #fff;
+}
+
+.qoracrm-wp-editor-wrapper .wp-media-buttons-icon::before {
+  color: inherit !important;
+}
+
+.qoracrm-wp-editor-wrapper .wp-editor-container {
+  border: 0;
+}
+
+.qoracrm-wp-editor-wrapper .wp-editor-tabs {
+  float: none;
+  padding: 8px 12px;
+  text-align: right;
+  background-color: #fff;
+}
+
+.qoracrm-wp-editor-wrapper .wp-switch-editor {
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  float: none;
+  font-size: 14px;
+  font-weight: 500;
+  height: auto;
+  line-height: inherit;
+  margin: 0 0 0 4px;
+  padding: 7px 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.qoracrm-wp-editor-wrapper .html-active .switch-html,
+.qoracrm-wp-editor-wrapper .tmce-active .switch-tmce {
+  background-color: #ededed;
+  border-color: #dadbdd;
+  color: #1e1f21;
+}
+
+.qoracrm-wp-editor-wrapper .switch-html {
+  margin-left: 0;
+}
+
+.qoracrm-wp-editor-wrapper .mce-top-part::before {
+  box-shadow: none;
+}
+
+.qoracrm-wp-editor-wrapper .quicktags-toolbar,
+.qoracrm-wp-editor-wrapper div.mce-toolbar-grp {
+  background: #f1f1f0;
+  border-bottom: 0;
+}
+
+.qoracrm-wp-editor-wrapper .mce-toolbar .mce-btn-group .mce-btn.mce-listbox {
+  border: 0;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.qoracrm-wp-editor-wrapper textarea {
+  border: 0;
+  padding: 15px;
+  min-height: 150px;
+  color: #333 !important;
+  background: #fff !important;
+}
+
+/* Override WP Admin Checkbox/Radio Styling for QoraCRM React App */
+#qoracrm-root input[type="checkbox"]:not(.sr-only),
+#qoracrm-root input[type="radio"]:not(.sr-only) {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-color: #fff !important;
+  border: 1px solid #cbd5e0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  position: relative !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+#qoracrm-root input[type="checkbox"]:not(.sr-only) {
+  border-radius: 4px !important;
+}
+
+#qoracrm-root input[type="radio"]:not(.sr-only) {
+  border-radius: 50% !important;
+}
+
+#qoracrm-root input[type="checkbox"]:not(.sr-only):checked,
+#qoracrm-root input[type="radio"]:not(.sr-only):checked {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+/* Checkbox Checkmark */
+#qoracrm-root input[type="checkbox"]:not(.sr-only):checked::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 1px !important;
+  width: 5px !important;
+  height: 9px !important;
+  border: solid white !important;
+  border-width: 0 2px 2px 0 !important;
+  transform: rotate(45deg) !important;
+  box-sizing: content-box !important;
+}
+
+/* Radio Button Dot */
+#qoracrm-root input[type="radio"]:not(.sr-only):checked::before {
+  content: none !important;
+}
+
+#qoracrm-root input[type="radio"]:not(.sr-only):checked::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 4px !important;
+  top: 4px !important;
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: white !important;
+  box-sizing: content-box !important;
+}
+
+@layer utilities {
+
+  #qoracrm-root .text-primary,
+  #qoracrm-root a.text-primary {
+    color: var(--color-primary) !important;
+  }
+
+  #qoracrm-root a.text-primary:hover {
+    color: var(--color-primary-dark) !important;
+  }
+
+  .focus\:border-primary:focus {
+    border-color: var(--color-primary) !important;
+  }
+}
+
+/* Global Custom Scrollbar for all scrollable elements */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto,
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  /* Firefox: hide by default */
+  transition: scrollbar-color 0.3s ease;
+}
+
+.overflow-auto:hover,
+.overflow-y-auto:hover,
+.overflow-x-auto:hover,
+.custom-scroll:hover {
+  scrollbar-color: var(--color-primary) transparent;
+  /* Firefox: show on hover */
+}
+
+.overflow-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.overflow-auto::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track,
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb,
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  /* Webkit: hide by default */
+  border-radius: 10px;
+}
+
+.overflow-auto:hover::-webkit-scrollbar-thumb,
+.overflow-y-auto:hover::-webkit-scrollbar-thumb,
+.overflow-x-auto:hover::-webkit-scrollbar-thumb,
+.custom-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  /* Webkit: show on hover */
+}
+
+.overflow-auto:hover::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto:hover::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto:hover::-webkit-scrollbar-thumb:hover,
+.custom-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Customizing react-datepicker */
+.react-datepicker {
+  font-family: inherit !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  background-color: #ffffff !important;
+  overflow: hidden;
+}
+
+.react-datepicker__header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  padding-top: 12px !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+}
+
+.react-datepicker__day-name {
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  margin: 0.166rem !important;
+}
+
+.react-datepicker__day {
+  color: #374151 !important;
+  border-radius: 6px !important;
+  margin: 0.166rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f3f4f6 !important;
+  border-radius: 6px !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid #f3f4f6 !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: #ffffff !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item {
+  height: auto !important;
+  padding: 8px 10px !important;
+  font-size: 13px !important;
+  color: #374151 !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list li.react-datepicker__time-list-item--selected {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+.react-datepicker-popper[data-placement^="bottom"] {
+  padding-top: 8px !important;
+}
+
+/* Override react-grid-layout placeholder color */
+.react-grid-item.react-grid-placeholder {
+  background: var(--color-primary) !important;
+  opacity: 0.1 !important;
+  border-radius: 16px;
+}
+
+/* ============================================================
+   Feature Gate — Plan Badge (navbar)
+   ============================================================ */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 22px;
+  font-size: 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.plan-badge--pro {
+  background: linear-gradient(135deg, #D4AF37 0%, #f0d060 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, .35);
+}
+
+.plan-badge--trial {
+  background: #fcf6e5;
+  color: #c49a1a;
+  border: 1.5px solid #eedc9a;
+}
+
+.plan-badge--lite {
+  background: linear-gradient(135deg, #D4AF37 0%, #c49a1a 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, .3);
+  border: none;
+  animation: plan-pulse 2.5s ease-in-out infinite;
+}
+
+.plan-badge--lite:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, .45);
+}
+
+@keyframes plan-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 2px 8px rgba(212, 175, 55, .3);
+  }
+
+  50% {
+    box-shadow: 0 2px 16px rgba(212, 175, 55, .6);
+  }
+}
+
+/* ============================================================
+   Feature Gate — Pro Lock Icon
+   ============================================================ */
+.pro-lock-icon {
+  font-size: 11px;
+  opacity: 0.7;
+  cursor: pointer;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: opacity 0.15s;
+}
+
+.pro-lock-icon:hover {
+  opacity: 1;
+}
+
+/* Wrapper that overlays a lock on Pro-only elements */
+.pro-locked-wrapper {
+  position: relative;
+}
+
+.pro-locked-wrapper::after {
+  content: '🔒';
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.pro-locked-wrapper>* {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ============================================================
+   Feature Gate — ProGate Banner
+   ============================================================ */
+.pro-gate-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+  border: 1.5px solid #fde68a;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 8px 0;
+}
+
+.pro-gate-banner:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, .2);
+}
+
+.pro-gate-banner__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.pro-gate-banner__text {
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.4;
+}
+
+.pro-gate-banner__link {
+  background: none;
+  border: none;
+  color: #D4AF37;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ============================================================
+   Feature Gate — Upgrade Modal
+   ============================================================ */
+.upgrade-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  animation: modal-fade-in 0.2s ease;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.upgrade-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  animation: modal-slide-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.upgrade-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: all 0.15s;
+}
+
+.upgrade-modal__close:hover {
+  background: #e5e7eb;
+  color: #111;
+}
+
+.upgrade-modal__header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.upgrade-modal__icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #D4AF37 0%, #f0d060 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 16px rgba(212, 175, 55, .4);
+}
+
+.upgrade-modal__title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 6px;
+}
+
+.upgrade-modal__subtitle {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.upgrade-modal__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+
+.upgrade-modal__feature-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #374151;
+}
+
+.upgrade-modal__check {
+  color: #D4AF37;
+  flex-shrink: 0;
+}
+
+.upgrade-modal__pricing {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.upgrade-modal__price {
+  font-size: 36px;
+  font-weight: 900;
+  color: #111;
+  line-height: 1;
+}
+
+.upgrade-modal__period {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-left: 4px;
+}
+
+.upgrade-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upgrade-modal__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.upgrade-modal__btn--primary {
+  background: linear-gradient(135deg, #D4AF37 0%, #c49a1a 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, .4);
+}
+
+.upgrade-modal__btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, .5);
+}
+
+.upgrade-modal__btn--secondary {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.upgrade-modal__btn--secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Feature Gate: Kanban locked columns */
+.kanban-col--locked {
+  opacity: 0.6;
+  position: relative;
+}
+
+.kanban-col--locked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  background: repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 8px,
+      rgba(0, 0, 0, .025) 8px,
+      rgba(0, 0, 0, .025) 16px);
+}
+
+.kanban-col--locked .kanban-card {
+  cursor: not-allowed;
+}
+
+/* Feature Gate: Pro-locked palette buttons */
+.pro-locked-wrapper {
+  position: relative;
+  opacity: 0.75;
+}
+
+.pro-locked-wrapper:hover {
+  opacity: 1;
+}
+
+body.toplevel_page_qoracrm #wpfooter {
+  display: none !important;
+}
+
+.qoracrm-heading-preview p,
+.qoracrm-heading-preview h1,
+.qoracrm-heading-preview h2,
+.qoracrm-heading-preview h3,
+.qoracrm-heading-preview h4 {
+  margin: 0 !important;
+}
+
+.gform-admin #qoracrm-root .react-colorful__pointer {
+  border: 2px solid #fff;
+}
+
+.gform-admin #qoracrm-root .react-colorful {
+  min-width: 200px;
+}
+
+.gform-admin #qoracrm-root .react-colorful__saturation {
+  block-size: 140px;
+}
+
+.gform-admin #qoracrm-root .react-colorful__last-control {
+  border-radius: 8px;
+  height: 12px;
+}
