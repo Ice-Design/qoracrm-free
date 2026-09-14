@@ -33,7 +33,7 @@ const getTemplates = (t) => [
     image: 'contact.png',
     requiresPro: false,
     schema: [
-      { id: 'f1', stepId: 'step_1', type: 'text', label: t('name_label') || 'First Name', placeholder: t('tpl_f_your_name') || 'Your name', required: true, width: '50' },
+      { id: 'f1', stepId: 'step_1', type: 'name', label: t('name_label') || 'First Name', placeholder: t('tpl_f_your_name') || 'Your name', required: true, width: '50' },
       { id: 'f2', stepId: 'step_1', type: 'email', label: t('email_label') || 'Email', placeholder: t('tpl_f_your_email') || 'Your email', required: true, width: '50' },
       { id: 'f3', stepId: 'step_1', type: 'phone', label: t('tpl_f_your_phone_label') || 'Your Phone', required: true, width: '100', useMask: true },
       { id: 'f4', stepId: 'step_1', type: 'textarea', label: t('message_label') || 'Message', placeholder: t('tpl_f_desc_request') || 'Describe your request...', required: false, width: '100' },

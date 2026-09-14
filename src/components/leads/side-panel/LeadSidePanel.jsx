@@ -267,7 +267,7 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 shrink-0 bg-white/80 backdrop-blur-xs">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 shrink-0 bg-white/80 backdrop-blur-xs z-20 relative">
         <div className="flex items-center gap-3 min-w-0">
           <h2 className="text-xl font-extrabold text-gray-900 tracking-tight shrink-0">Lead #{lead.id}</h2>
           <span className="text-xs text-gray-400 font-medium shrink-0">{formatCrmDate(lead.created_at, t)}</span>

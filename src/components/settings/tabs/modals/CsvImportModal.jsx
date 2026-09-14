@@ -13,7 +13,7 @@ import { getDefaultStatuses } from '../../../leads/leadHelpers';
 export function CsvImportModal({ onClose }) {
   const { t } = useI18n();
   const fileInputRef = useRef(null);
-  const { tags: globalTags, setTags, statuses: configuredStatuses, generalLang } = useSettingsStore();
+  const { tags: globalTags, setTags, statuses: configuredStatuses, fetchSettings, generalLang } = useSettingsStore();
 
   const [step, setStep] = useState(1); // 1: Upload, 2: Map, 3: Importing, 4: Done
   const [file, setFile] = useState(null);
@@ -85,7 +85,7 @@ export function CsvImportModal({ onClose }) {
       if (matched) {
         initialMap[csvStatus] = matched.id;
       } else {
-        initialMap[csvStatus] = 'new';
+        initialMap[csvStatus] = isPro ? '_create_new_' : 'new';
       }
     });
 
@@ -132,7 +132,7 @@ export function CsvImportModal({ onClose }) {
     { id: 'utm_campaign', label: 'UTM Campaign' },
     { id: 'utm_term', label: 'UTM Term' },
     { id: 'utm_content', label: 'UTM Content' },
-    { id: 'ip', label: 'IP Address' },
+    { id: 'ip', label: t('ip_address') || 'IP Address' },
     { id: 'created_at', label: t('creation_date') || 'Creation Date' },
   ];
 
@@ -176,7 +176,7 @@ export function CsvImportModal({ onClose }) {
         complete: handleParsedData,
         error: (err) => {
           console.error(err);
-          showGlobalToast('Error parsing CSV', 'error');
+          showGlobalToast(t('error_parsing_csv') || 'Error parsing CSV', 'error');
         }
       });
     } else if (isExcel) {
@@ -193,11 +193,11 @@ export function CsvImportModal({ onClose }) {
           const fields = Object.keys(jsonData[0]);
           handleParsedData({ meta: { fields }, data: jsonData });
         } else {
-          showGlobalToast('Excel file is empty or missing headers.', 'error');
+          showGlobalToast(t('excel_empty_headers') || 'Excel file is empty or missing headers.', 'error');
         }
       } catch (error) {
         console.error(error);
-        showGlobalToast('Error parsing Excel file', 'error');
+        showGlobalToast(t('error_parsing_excel') || 'Error parsing Excel file', 'error');
       }
     }
   };
@@ -230,13 +230,13 @@ export function CsvImportModal({ onClose }) {
       setMapping(newMapping);
       setStep(2);
     } else {
-      showGlobalToast('Could not read headers.', 'error');
+      showGlobalToast(t('error_read_headers') || 'Could not read headers.', 'error');
     }
   };
 
   const proceedToAssignees = async () => {
     if (!selectedFormId) {
-      showGlobalToast('Please select a target form.', 'error');
+      showGlobalToast(t('select_target_form_error') || 'Please select a target form.', 'error');
       return;
     }
 
@@ -405,12 +405,20 @@ export function CsvImportModal({ onClose }) {
 
     setImportStats({ success: successCount, failed: failedCount });
     setStep(5);
+
+    try {
+      if (typeof fetchSettings === 'function') {
+        await fetchSettings(t);
+      }
+    } catch (e) {
+      console.error('Error refreshing settings after import', e);
+    }
   };
 
   const handleCreateUser = async (assigneeName) => {
     const formData = newUserForms[assigneeName];
     if (!formData || !formData.email) {
-      showGlobalToast('Email is required', 'error');
+      showGlobalToast(t('email_required') || 'Email is required', 'error');
       return;
     }
 
@@ -492,7 +500,9 @@ export function CsvImportModal({ onClose }) {
                 <AlertCircle size={20} className="shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-sm">{t('csv_loaded_success') || 'File loaded successfully!'}</p>
-                  <p className="text-sm opacity-80 mt-1">Found {csvData.length} rows. Please map your columns to the CRM fields.</p>
+                  <p className="text-sm opacity-80 mt-1">
+                    {t('found_rows_map_columns', { count: csvData.length }) || `Found ${csvData.length} rows. Please map your columns to the CRM fields.`}
+                  </p>
                 </div>
               </div>
 
@@ -543,7 +553,7 @@ export function CsvImportModal({ onClose }) {
                                 <ArrowDown size={14} />
                               </div>
                               <select
-                                value={statusMapping[csvStatus] || 'new'}
+                                value={statusMapping[csvStatus] || (isPro ? '_create_new_' : 'new')}
                                 onChange={e => setStatusMapping({ ...statusMapping, [csvStatus]: e.target.value })}
                                 className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
                               >
@@ -585,7 +595,7 @@ export function CsvImportModal({ onClose }) {
                                 <ArrowDown size={14} />
                               </div>
                               <select
-                                value={tagMapping[csvTag] || ''}
+                                value={tagMapping[csvTag] || (isPro ? '_create_new_' : '')}
                                 onChange={e => setTagMapping({ ...tagMapping, [csvTag]: e.target.value })}
                                 className="w-full px-3 py-1.5 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
                               >
@@ -616,7 +626,7 @@ export function CsvImportModal({ onClose }) {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200 text-sm text-gray-500">
-                      <th className="font-semibold px-4 py-3 w-1/2">QoraCRM Field</th>
+                      <th className="font-semibold px-4 py-3 w-1/2">{t('qoracrm_field') || 'QoraCRM Field'}</th>
                       <th className="font-semibold px-4 py-3 w-1/2">{t('file_column') || 'File Column'}</th>
                     </tr>
                   </thead>
@@ -655,7 +665,7 @@ export function CsvImportModal({ onClose }) {
                         <td className="px-4 py-3 font-medium text-gray-700">
                           <input
                             type="text"
-                            placeholder="Custom Field Name"
+                            placeholder={t('custom_field_name') || 'Custom Field Name'}
                             value={cf.label}
                             onChange={e => {
                               const newCf = [...customFields];
@@ -775,7 +785,7 @@ export function CsvImportModal({ onClose }) {
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Loader2 size={48} className="text-primary animate-spin mb-6" />
               <h3 className="text-xl font-bold text-gray-900 mb-2">{t('importing_data') || 'Importing Data...'}</h3>
-              <p className="text-gray-500 mb-8">Please wait while we process your leads. Do not close this window.</p>
+              <p className="text-gray-500 mb-8">{t('please_wait_import') || 'Please wait while we process your leads. Do not close this window.'}</p>
 
               <div className="w-full max-w-md bg-gray-100 rounded-full h-3 mb-2 overflow-hidden">
                 <div className="bg-primary h-3 rounded-full transition-all duration-300" style={{ width: `${importProgress}%` }}></div>
@@ -791,8 +801,12 @@ export function CsvImportModal({ onClose }) {
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('import_complete') || 'Import Complete!'}</h3>
               <p className="text-gray-600 mb-8 max-w-sm">
-                Successfully imported <strong>{importStats.success}</strong> leads.
-                {importStats.failed > 0 && <span className="text-red-500 ml-1">Failed to import {importStats.failed} leads.</span>}
+                {t('successfully_imported_leads', { count: importStats.success }) || `Successfully imported ${importStats.success} leads.`}
+                {importStats.failed > 0 && (
+                  <span className="text-red-500 ml-1">
+                    {t('failed_to_import_leads', { count: importStats.failed }) || `Failed to import ${importStats.failed} leads.`}
+                  </span>
+                )}
               </p>
               <button
                 onClick={onClose}

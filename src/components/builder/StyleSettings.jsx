@@ -61,6 +61,38 @@ export function StyleSettings({ formId: propFormId }) {
 
           <div className="flex flex-col gap-1">
             <div className="flex justify-between">
+              <label className="text-xs font-semibold text-gray-500">{t('input_border_width') || 'Input Border Width'}</label>
+              <span className="text-xs text-gray-400 font-mono">
+                {formSettings.inputBorderWidth !== undefined ? formSettings.inputBorderWidth : 1}px
+                {(formSettings.inputBorderWidth === 0 || formSettings.inputBorderWidth === '0') ? ` (${t('no_border') || 'No Border'})` : ''}
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="10"
+              value={formSettings.inputBorderWidth !== undefined ? formSettings.inputBorderWidth : 1}
+              onChange={(e) => updateFormSettings({ inputBorderWidth: parseInt(e.target.value, 10) })}
+              className="w-full accent-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1.5">{t('input_border_style') || 'Input Border Style'}</label>
+            <select
+              value={formSettings.inputBorderStyle || 'solid'}
+              onChange={(e) => updateFormSettings({ inputBorderStyle: e.target.value })}
+              className="w-full border border-gray-300 p-2 rounded-md text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary bg-white"
+            >
+              <option value="solid">{t('border_style_solid') || 'Solid'}</option>
+              <option value="dashed">{t('border_style_dashed') || 'Dashed'}</option>
+              <option value="dotted">{t('border_style_dotted') || 'Dotted'}</option>
+              <option value="none">{t('border_style_none') || 'None (No Border)'}</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <div className="flex justify-between">
               <label className="text-xs font-semibold text-gray-500">{t('padding_vertical') || 'Padding Vertical (Inside)'}</label>
               <span className="text-xs text-gray-400 font-mono">{formSettings.paddingY || 12}px</span>
             </div>
@@ -206,6 +238,20 @@ export function StyleSettings({ formId: propFormId }) {
             <ColorPickerInput
               color={formSettings.inputTextColor || '#1a202c'}
               onChange={(val) => updateFormSettings({ inputTextColor: val })}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-gray-500 mb-1.5">{t('input_border_color') || 'Input Border Color'}</label>
+            <ColorPickerInput
+              color={formSettings.inputBorderColor || '#cbd5e0'}
+              onChange={(val) => updateFormSettings({ inputBorderColor: val })}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold text-gray-500 mb-1.5">{t('input_bg_color') || 'Input Bg Color'}</label>
+            <ColorPickerInput
+              color={formSettings.inputBgColor || '#ffffff'}
+              onChange={(val) => updateFormSettings({ inputBgColor: val })}
             />
           </div>
         </div>

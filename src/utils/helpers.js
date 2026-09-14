@@ -227,10 +227,11 @@ export const formatCrmDate = (dateString, t) => {
     second: 'numeric'
   };
   
+  const displayTz = window.qoraCrmData?.general?.timezone || window.qoraCrmData?.timezone || '';
   if (displayTz) {
     try {
       options.timeZone = displayTz;
-    } catch (e) {
+    } catch (err) {
       // invalid timezone string
     }
   }
