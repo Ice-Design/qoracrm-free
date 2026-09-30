@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Settings as SettingsIcon, Tag, Link as LinkIcon, Shield, Users, MessageSquareWarning, Save, Download, Ghost, AlertCircle, Kanban, MessageCircle, CreditCard, Mail } from 'lucide-react';
+import { Settings as SettingsIcon, Tag, Link as LinkIcon, Shield, Users, MessageSquareWarning, Save, Download, Ghost, AlertCircle, Kanban, MessageCircle, MessageSquare, CreditCard, Mail } from 'lucide-react';
 import { useI18n } from '../../utils/I18nContext';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { NavTab } from '../ui/NavTab';
@@ -23,7 +23,9 @@ export function SettingsView() {
   const [activeTab, setActiveTab] = useState(() => {
     const hashParts = window.location.hash.replace('#/', '').split('/');
     if (hashParts[0] === 'settings' && hashParts[1]) {
-      return hashParts[1];
+      const tab = hashParts[1];
+      if (tab === 'live_chat') return 'chats';
+      return tab;
     }
     return 'general';
   });
@@ -50,6 +52,7 @@ export function SettingsView() {
     { id: 'permissions', label: t('tab_permissions') || 'Permissions', icon: <Users size={16} /> },
     { id: 'form_errors', label: t('tab_form_errors') || 'Form Errors', icon: <AlertCircle size={18} /> },
     { id: 'floating_button', label: <span className="flex items-center gap-1">{t('floating_button') || 'Floating Button'}{!canFloatingBtn && <span title={t('available_in_pro')}>🔒</span>}</span>, icon: <MessageCircle size={18} />, locked: !canFloatingBtn, featureKey: 'settings_floating_btn', featureLabel: t('floating_button') || 'Floating Button' },
+    { id: 'chats', label: <span className="flex items-center gap-1.5">{t('tab_chats') || 'Chats'}<span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 bg-amber-500/15 text-amber-600 rounded">beta</span>{!canFloatingBtn && <span title={t('available_in_pro')}>🔒</span>}</span>, icon: <MessageSquare size={18} />, locked: !canFloatingBtn, featureKey: 'settings_floating_btn', featureLabel: t('tab_chats') || 'Chats' },
     { id: 'abandoned', label: <span className="flex items-center gap-1">{t('abandoned_forms') || 'Abandoned Forms'}{!canAbandoned && <span title={t('available_in_pro')}>🔒</span>}</span>, icon: <Ghost size={18} />, locked: !canAbandoned, featureKey: 'settings_abandoned', featureLabel: t('abandoned_forms') || 'Abandoned Forms' },
     { id: 'support', label: <span className="flex items-center gap-1">{t('tab_support') || 'Support'}{!isAvailable('premium_support') && <span title={t('available_in_pro')}>🔒</span>}</span>, icon: <MessageSquareWarning size={18} />, locked: !isAvailable('premium_support'), featureKey: 'premium_support', featureLabel: t('premium_support') || 'Premium Support' },
     ...(hasHadLicense ? [{ id: 'subscription', label: <span className="flex items-center gap-1">{t('tab_subscription') || 'License'}</span>, icon: <CreditCard size={18} /> }] : []),
@@ -113,7 +116,7 @@ export function SettingsView() {
   }
 
   return (
-    <div className="pt-4 md:pt-12 px-3 md:px-8 pb-8 max-w-5xl mx-auto w-full flex flex-col h-full overflow-y-auto relative">
+    <div className="pt-3 sm:pt-6 md:pt-10 px-2 sm:px-6 md:px-8 pb-6 sm:pb-8 max-w-5xl mx-auto w-full flex flex-col h-full overflow-y-auto relative">
       {/* Toast */}
       {toastMsg && (
         <div className={`fixed top-6 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full shadow-lg z-[9999] text-sm font-semibold text-white ${toastType === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}>
@@ -122,7 +125,7 @@ export function SettingsView() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 tracking-tight">{t('settings_title')}</h1>
           <p className="text-xs md:text-sm text-gray-500 mt-1">{t('settings_description')}</p>
@@ -138,9 +141,9 @@ export function SettingsView() {
       </div>
 
       {/* Body */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col md:flex-row min-h-[500px] w-full">
         {/* Sidebar Nav */}
-        <div className="w-full md:w-56 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 p-3 md:p-4 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto scrollbar-none">
+        <div className="w-full md:w-56 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 p-2 sm:p-3 md:p-4 shrink-0 flex flex-row md:flex-col gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none flex-nowrap">
           {TABS.map(tab => (
             <NavTab
               key={tab.id}
@@ -171,6 +174,7 @@ export function SettingsView() {
           {activeTab === 'permissions' && <PermissionsTab wpUsers={wpUsers} />}
           {activeTab === 'form_errors' && <FormErrorsTab />}
           {activeTab === 'floating_button' && <ExtensionSlot name="SettingsTab_floating_button" />}
+          {activeTab === 'chats' && <ExtensionSlot name="SettingsTab_chats" />}
           {activeTab === 'abandoned' && <ExtensionSlot name="SettingsTab_abandoned" />}
           {activeTab === 'support' && <ExtensionSlot name="SettingsTab_support" />}
           {activeTab === 'subscription' && <ExtensionSlot name="SettingsTab_subscription" />}

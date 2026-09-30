@@ -320,7 +320,7 @@ export function SubmissionsImportModal({ config, onClose }) {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">{!t('source_channel') || t('source_channel') === 'source_channel' ? 'Источник: Форма / Канал Flamingo' : t('source_channel')}</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">{t('source_channel') || 'Source: Flamingo Form / Channel'}</label>
                       <select
                         value={selectedChannel}
                         onChange={e => setSelectedChannel(e.target.value)}

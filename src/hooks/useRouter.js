@@ -27,13 +27,14 @@ export function useRouter() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#/', '');
-      if (!hash) {
+      const rawHash = window.location.hash || '';
+      const cleanHash = rawHash.replace(/^#\/?/, '').replace(/\/+$/, '');
+      if (!cleanHash) {
         window.location.hash = '#/leads/kanban';
         return;
       }
       
-      const parts = hash.split('/');
+      const parts = cleanHash.split('/');
       const tab = parts[0];
       const view = parts[1] || 'list';
       const idStr = parts[2];
@@ -61,6 +62,28 @@ export function useRouter() {
         setActiveTab('settings');
       } else if (tab === 'dashboard') {
         setActiveTab('dashboard');
+      } else if (tab === 'automations') {
+        setActiveTab('automations');
+        setActiveView(view || 'list');
+        if (idStr === 'new' || view === 'new' || (view === 'builder' && !idStr)) {
+          setRouteId(idStr || 'new');
+        } else if (idStr) {
+          const parsed = parseInt(idStr, 10);
+          setRouteId(isNaN(parsed) ? idStr : parsed);
+        } else if (!isNaN(parseInt(view, 10))) {
+          setActiveView('builder');
+          setRouteId(parseInt(view, 10));
+        } else {
+          setRouteId(null);
+        }
+      } else if (tab === 'chats') {
+        setActiveTab('chats');
+        const chatId = idStr || (view !== 'list' ? view : null);
+        if (chatId && !isNaN(parseInt(chatId, 10))) {
+          setRouteId(parseInt(chatId, 10));
+        } else {
+          setRouteId(null);
+        }
       }
     };
 
@@ -73,7 +96,8 @@ export function useRouter() {
   const navigate = (path) => {
     const isFormDirty = useFormStore.getState().isDirty;
     const isSettingsDirty = useSettingsStore.getState().isDirty;
-    if (isFormDirty || isSettingsDirty) {
+    const isAutomationDirty = Boolean(window.__qoracrm_automation_is_dirty);
+    if (isFormDirty || isSettingsDirty || isAutomationDirty) {
       setPendingNavigation(path);
       return;
     }

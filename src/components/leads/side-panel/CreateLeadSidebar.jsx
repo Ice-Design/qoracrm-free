@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Tag as TagIcon, Check, Plus, Trash2 } from 'lucide-react';
+import { Tag as TagIcon, Check, Plus, Trash2, X, Loader2 } from 'lucide-react';
 import { CustomSelect } from '../../ui/CustomSelect';
 import { showGlobalToast } from '../../../utils/helpers';
 import ExtensionSlot from '../../common/ExtensionSlot';
@@ -84,24 +84,77 @@ export function CreateLeadSidebar({ onClose, onCreated, globalTags, globalStatus
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 shrink-0">
-        <div>
-          <h2 className="text-xl font-extrabold text-gray-900 tracking-tight">{t('create_lead') || 'Create Lead'}</h2>
-          <p className="text-sm text-gray-400 mt-1">{t('manual_lead_desc') || 'Manually add a new lead'}</p>
+      <div className="flex flex-col border-b border-gray-100 shrink-0 bg-white">
+        <div className="flex items-center justify-between px-4 sm:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4">
+          <div className="min-w-0 pr-2">
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight">{t('create_lead') || 'Create Lead'}</h2>
+            <p className="text-xs sm:text-sm text-gray-400 mt-0.5 truncate">{t('manual_lead_desc') || 'Manually add a new lead'}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Desktop Action Buttons */}
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+              >
+                {t('cancel') || 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCreate}
+                disabled={isSaving}
+                className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-dark transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer active:scale-95"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>{t('saving') || 'Saving...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Check size={16} />
+                    <span>{t('create_lead') || 'Create'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+            {/* Close X Button (Always visible on mobile & desktop) */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all cursor-pointer active:scale-95"
+              title={t('close') || 'Close'}
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">
+
+        {/* Mobile Action Buttons Bar (Below Title) */}
+        <div className="flex sm:hidden items-center gap-2.5 px-4 pb-3 pt-1">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2.5 text-xs font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-center cursor-pointer active:scale-95"
+          >
             {t('cancel') || 'Cancel'}
           </button>
           <button
+            type="button"
             onClick={handleCreate}
             disabled={isSaving}
-            className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-primary-dark transition-colors shadow-sm flex items-center gap-2"
+            className="flex-1 py-2.5 bg-primary text-white text-xs font-bold rounded-xl shadow-xs hover:bg-primary-dark transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
           >
-            {isSaving ? (t('saving') || 'Saving...') : (
+            {isSaving ? (
               <>
-                <Check size={16} />
-                {t('create_lead') || 'Create'}
+                <Loader2 size={15} className="animate-spin" />
+                <span>{t('saving') || 'Saving...'}</span>
+              </>
+            ) : (
+              <>
+                <Check size={15} />
+                <span>{t('create_lead') || 'Create'}</span>
               </>
             )}
           </button>
@@ -109,7 +162,7 @@ export function CreateLeadSidebar({ onClose, onCreated, globalTags, globalStatus
       </div>
 
       {/* Main Settings */}
-      <div className="px-8 py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-6 shrink-0 flex-wrap">
+      <div className="px-4 sm:px-8 py-3 sm:py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-4 sm:gap-6 shrink-0 flex-wrap">
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs font-semibold text-gray-500 shrink-0">{t('status') || 'Status'}:</span>
           <CustomSelect
@@ -135,7 +188,7 @@ export function CreateLeadSidebar({ onClose, onCreated, globalTags, globalStatus
       </div>
 
       {/* Scrollable Form */}
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex flex-col gap-6 sm:gap-8">
 
         {/* Tags Section */}
         <section>

@@ -155,7 +155,7 @@ export function KanbanView({ leads, onSelect, updateStatus, selectedLeadId, glob
 
   return (
     <>
-      <div className="flex gap-6 p-8 h-full overflow-x-auto items-start custom-scroll">
+      <div className="flex gap-3 sm:gap-6 p-3 sm:p-6 md:p-8 h-full overflow-x-auto items-start custom-scroll">
         {globalStatuses.map((status, index) => {
           const isFirstColumn = index === 0;
           const columnLeads = leads
@@ -178,7 +178,7 @@ export function KanbanView({ leads, onSelect, updateStatus, selectedLeadId, glob
           return (
             <div
               key={status.id}
-              className="flex-1 min-w-[300px] max-w-[350px] rounded-xl shadow-sm border flex flex-col h-full max-h-full overflow-hidden transition-all"
+              className="flex-1 min-w-[270px] sm:min-w-[300px] max-w-[320px] sm:max-w-[350px] rounded-xl shadow-sm border flex flex-col h-full max-h-full overflow-hidden transition-all"
               style={{
                 backgroundColor: `${statusColor}08`,
                 borderColor: `${statusColor}30`,
@@ -229,26 +229,65 @@ export function KanbanView({ leads, onSelect, updateStatus, selectedLeadId, glob
                   if (lead.entry_data) {
                     const metaLabels = lead.meta_data?.field_labels || {};
 
+                    const standardLabels = {
+                      name: t('name_label') || 'Name',
+                      names: t('name_label') || 'Name',
+                      first_name: t('first_name') || 'First Name',
+                      last_name: t('last_name') || 'Last Name',
+                      email: t('email_label') || 'Email',
+                      phone: t('phone') || 'Phone',
+                      subject: t('subject') || 'Subject',
+                      message: t('message_label') || 'Message',
+                      company: t('company_label') || 'Company',
+                    };
+
                     // Explicitly process standard fields first so they can be selected as primary identifier
-                    if (lead.entry_data.name) allPreviewFields.push({ label: t('name') || 'Name', value: formatLeadName(lead.entry_data.name), isPrimary: true });
-                    if (lead.entry_data.email) allPreviewFields.push({ label: t('email') || 'Email', value: lead.entry_data.email, isEmail: true });
-                    if (lead.entry_data.phone) allPreviewFields.push({ label: t('phone') || 'Phone', value: lead.entry_data.phone, isPhone: true });
+                    if (lead.entry_data.name) {
+                      allPreviewFields.push({ label: t('name') || 'Name', value: formatLeadName(lead.entry_data.name), isPrimary: true, hasRealLabel: true });
+                    } else if (lead.entry_data.names) {
+                      allPreviewFields.push({ label: t('name') || 'Name', value: formatLeadName(lead.entry_data.names), isPrimary: true, hasRealLabel: true });
+                    } else if (lead.entry_data.first_name) {
+                      const fullVal = lead.entry_data.last_name ? `${lead.entry_data.first_name} ${lead.entry_data.last_name}` : lead.entry_data.first_name;
+                      allPreviewFields.push({ label: t('name') || 'Name', value: formatLeadName(fullVal), isPrimary: true, hasRealLabel: true });
+                    }
+                    if (lead.entry_data.email) allPreviewFields.push({ label: t('email') || 'Email', value: lead.entry_data.email, isEmail: true, hasRealLabel: true });
+                    if (lead.entry_data.phone) allPreviewFields.push({ label: t('phone') || 'Phone', value: lead.entry_data.phone, isPhone: true, hasRealLabel: true });
 
                     Object.keys(lead.entry_data).forEach(key => {
-                      if (['name', 'email', 'phone', 'value', 'total', 'custom_fields', 'qoracrm_form_total'].includes(key) || key.endsWith('_quantity')) return;
+                      // Skip standard/common fields already handled above
+                      if (['name', 'names', 'first_name', 'last_name', 'email', 'phone', 'value', 'total', 'custom_fields', 'qoracrm_form_total'].includes(key) || key.endsWith('_quantity')) return;
+
+                      // Skip technical/internal fields starting with _ (e.g. _wp_http_referer, _wpnonce, _fluentform_..., __fluent_form_...)
+                      if (key.startsWith('_')) return;
+
+                      // Skip system/internal tokens and metadata
+                      if (['session_id', 'qora_token', 'abandoned_type', 'qoracrm_tracking_data', 'qoracrm-consent-checkbox'].includes(key)) return;
+
+                      // Skip repeater sub-fields
+                      if (key.match(/^([a-zA-Z0-9_-]+)\s*\[\d+\]/)) return;
 
                       const val = lead.entry_data[key];
                       if (val === null || val === undefined || val === '') return;
+
+                      const formattedVal = formatLeadName(val);
+                      if (!formattedVal) return;
 
                       const isPluginField = key.startsWith('field_') || key.startsWith('frmt_') || key.startsWith('frm_');
                       const fieldId = key.replace('field_', '');
                       const f = fieldMap[fieldId] || fieldMap[key];
 
+                      let hasRealLabel = false;
                       let labelText = f?.label || metaLabels[key] || metaLabels[fieldId];
+                      if (labelText) {
+                        hasRealLabel = true;
+                      } else if (standardLabels[key.toLowerCase()]) {
+                        labelText = standardLabels[key.toLowerCase()];
+                        hasRealLabel = true;
+                      }
 
                       if (f) {
                         if (['text', 'email', 'phone', 'name', 'textarea'].includes(f.type)) {
-                          allPreviewFields.push({ label: labelText || f.label || key, value: formatLeadName(val) });
+                          allPreviewFields.push({ label: labelText || f.label || key, value: formattedVal, hasRealLabel: true });
                         } else if (f.type === 'product') {
                           let optName = val;
                           if (f.options) {
@@ -257,15 +296,15 @@ export function KanbanView({ leads, onSelect, updateStatus, selectedLeadId, glob
                           }
                           const qty = lead.entry_data[key + '_quantity'] || 1;
                           const pLabel = f.label || t('product') || 'Product';
-                          allPreviewFields.push({ label: pLabel, value: `${optName} x${qty}` });
+                          allPreviewFields.push({ label: pLabel, value: `${optName} x${qty}`, hasRealLabel: true });
                         }
                       } else {
                         // Form was deleted or non-schema field
                         if (!labelText && !isPluginField) {
-                          labelText = key.charAt(0).toUpperCase() + key.slice(1);
+                          labelText = key.replace(/^[_-]+/, '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                         }
                         if (labelText) {
-                          allPreviewFields.push({ label: labelText, value: formatLeadName(val) });
+                          allPreviewFields.push({ label: labelText, value: formattedVal, hasRealLabel });
                         }
                       }
                     });
@@ -302,6 +341,9 @@ export function KanbanView({ leads, onSelect, updateStatus, selectedLeadId, glob
                   } else if (lead.entry_data && Object.values(lead.entry_data).length > 0) {
                     mainIdentifier = getLeadDisplayName(lead, t);
                   }
+
+                  // Prioritize fields that have explicit labels over unmapped/fallback fields
+                  remainingFields.sort((a, b) => (b.hasRealLabel ? 1 : 0) - (a.hasRealLabel ? 1 : 0));
 
                   const limitedPreviewFields = remainingFields.slice(0, 3);
 

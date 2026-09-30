@@ -287,15 +287,19 @@ export function FormBuilder({ onBack, routeFormId }) {
     (!quizMode || steps.length <= 1) && ['33.333%', '33%', '25%', '33', '25'].includes(formSettings.submitWidth)
   );
 
+  const hasSaveBtn = Boolean(formSettings.enableSaveContinue);
+  const isFullWidthSubmit = isInlineSubmit || formSettings.submitWidth === '100%' || !formSettings.submitWidth;
+
   const renderSubmitButtons = () => (
     <>
-      {formSettings.enableSaveContinue && (
+      {hasSaveBtn && (
         <button
+          type="button"
           onClick={() => {
             selectField(null);
             setSidebarTab('global_settings');
           }}
-          className="bg-transparent text-gray-500 font-semibold border border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 mr-auto"
+          className="bg-transparent text-gray-500 font-semibold border border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
           style={{
             padding: formSettings.submitSize === 'small' ? '8px 16px' : (formSettings.submitSize === 'large' ? '16px 32px' : '12px 24px'),
             fontSize: formSettings.submitSize === 'small' ? '13px' : (formSettings.submitSize === 'large' ? '17px' : '15px'),
@@ -319,12 +323,15 @@ export function FormBuilder({ onBack, routeFormId }) {
           t={t}
           fallback={
             <button
+              type="button"
               onClick={() => {
                 selectField(null);
                 setSidebarTab('global_settings');
               }}
               style={{
-                width: isInlineSubmit ? '100%' : (formSettings.submitWidth || '100%'),
+                flex: hasSaveBtn && isFullWidthSubmit ? '1 1 0%' : 'none',
+                width: hasSaveBtn && isFullWidthSubmit ? 'auto' : (isInlineSubmit ? '100%' : (formSettings.submitWidth || '100%')),
+                minWidth: 0,
                 padding: formSettings.submitSize === 'small' ? '8px 16px' : (formSettings.submitSize === 'large' ? '16px 32px' : '12px 24px'),
                 fontSize: formSettings.submitSize === 'small' ? '13px' : (formSettings.submitSize === 'large' ? '17px' : '15px'),
                 backgroundColor: formSettings.accentColor || '#d4af37',
@@ -335,7 +342,8 @@ export function FormBuilder({ onBack, routeFormId }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: `${formSettings.submitIcon?.gap || 8}px`
+                gap: `${formSettings.submitIcon?.gap || 8}px`,
+                whiteSpace: 'nowrap'
               }}
             >
               {(() => {
@@ -358,12 +366,15 @@ export function FormBuilder({ onBack, routeFormId }) {
         />
       ) : (
         <button
+          type="button"
           onClick={() => {
             selectField(null);
             setSidebarTab('global_settings');
           }}
           style={{
-            width: isInlineSubmit ? '100%' : (formSettings.submitWidth || '100%'),
+            flex: hasSaveBtn && isFullWidthSubmit ? '1 1 0%' : 'none',
+            width: hasSaveBtn && isFullWidthSubmit ? 'auto' : (isInlineSubmit ? '100%' : (formSettings.submitWidth || '100%')),
+            minWidth: 0,
             padding: formSettings.submitSize === 'small' ? '8px 16px' : (formSettings.submitSize === 'large' ? '16px 32px' : '12px 24px'),
             fontSize: formSettings.submitSize === 'small' ? '13px' : (formSettings.submitSize === 'large' ? '17px' : '15px'),
             backgroundColor: formSettings.accentColor || '#d4af37',
@@ -374,7 +385,8 @@ export function FormBuilder({ onBack, routeFormId }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: `${formSettings.submitIcon?.gap || 8}px`
+            gap: `${formSettings.submitIcon?.gap || 8}px`,
+            whiteSpace: 'nowrap'
           }}
         >
           {(() => {
@@ -581,8 +593,12 @@ export function FormBuilder({ onBack, routeFormId }) {
                   ))}
 
                   {isInlineSubmit && activeFields.length > 0 && (
-                    <div className="px-2 pb-4 transition-all flex items-end" style={{ width: formSettings.submitWidth }}>
-                      <div className="flex gap-4 w-full" style={{ justifyContent: 'flex-start' }}>
+                    <div className="px-2 pb-4 transition-all flex items-end" style={{
+                      width: ['25%', '33%', '33.333%', '50%'].includes(formSettings.submitWidth) ? formSettings.submitWidth : 'auto',
+                      flex: ['25%', '33%', '33.333%', '50%'].includes(formSettings.submitWidth) ? 'none' : '1 1 0%',
+                      minWidth: '140px'
+                    }}>
+                      <div className="flex items-center gap-3 w-full flex-nowrap" style={{ justifyContent: 'flex-start' }}>
                         {renderSubmitButtons()}
                       </div>
                     </div>
@@ -591,7 +607,7 @@ export function FormBuilder({ onBack, routeFormId }) {
               )}
 
               {!isInlineSubmit && activeFields.length > 0 && (
-                <div className="mt-5 px-2 flex gap-4 w-full" style={{
+                <div className="mt-5 px-2 flex items-center gap-3 w-full flex-nowrap" style={{
                   justifyContent: formSettings.submitAlignment === 'right' ? 'flex-end' : (formSettings.submitAlignment === 'left' ? 'flex-start' : 'center')
                 }}>
                   {renderSubmitButtons()}

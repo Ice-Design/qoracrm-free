@@ -185,14 +185,14 @@ export function FormsList({ onOpenBuilder }) {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto w-full flex flex-col h-full">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t('forms') || 'Forms'}</h1>
-        <div className="flex items-center gap-3">
+    <div className="p-3 sm:p-6 md:p-8 max-w-5xl mx-auto w-full flex flex-col h-full">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">{t('forms') || 'Forms'}</h1>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {hasImportablePlugins && (
             <button
               onClick={() => window.location.hash = '#/settings/import'}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
             >
               <Download size={18} />
               {t('import') || 'Import'}
@@ -200,7 +200,7 @@ export function FormsList({ onOpenBuilder }) {
           )}
           <button
             onClick={handleCreateNew}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm bg-primary text-white shadow-[0_4px_14px_rgba(212,175,55,0.3)] hover:bg-primary-dark hover:-translate-y-[1px] transition-all"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-sm bg-primary text-white shadow-[0_4px_14px_rgba(212,175,55,0.3)] hover:bg-primary-dark hover:-translate-y-[1px] transition-all"
           >
             <Plus size={18} />
             {t('add_new_form') || 'Add New Form'}
@@ -208,8 +208,8 @@ export function FormsList({ onOpenBuilder }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-auto">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto w-full">
+        <table className="w-full text-left border-collapse min-w-[620px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm">
               <th className="font-semibold p-4 w-16 cursor-pointer group select-none" onClick={() => handleSort('id')}>
@@ -240,10 +240,10 @@ export function FormsList({ onOpenBuilder }) {
                   <td className="p-4"><button onClick={() => handleEdit(form)} className="font-semibold text-gray-900 hover:text-primary transition-colors text-left">{form.title}</button></td>
                   <td className="p-4 text-center text-gray-600 font-medium">{form.views || 0}</td>
                   <td className="p-4 text-center text-gray-600 font-medium">{form.submissions || 0}</td>
-                  <td className="p-4">
+                  <td className="p-4 whitespace-nowrap">
                     <code
                       onClick={(e) => copyShortcode(form.id, e, t('shortcode_copied') || 'Shortcode copied to clipboard!')}
-                      className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-md text-[13px] font-mono border border-gray-200 cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                      className="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-md text-[13px] font-mono border border-gray-200 cursor-pointer hover:bg-primary hover:text-white hover:border-primary transition-colors whitespace-nowrap inline-block"
                       title={t('click_to_copy') || 'Click to copy'}
                     >
                       [qoracrm_form id=&quot;{form.id}&quot;]
@@ -265,8 +265,8 @@ export function FormsList({ onOpenBuilder }) {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t border-gray-100 bg-white">
-            <span className="text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 sm:p-4 border-t border-gray-100 bg-white">
+            <span className="text-xs sm:text-sm text-gray-500">
               {t('showing') || 'Showing'} {((currentPage - 1) * ITEMS_PER_PAGE) + 1} {t('to') || 'to'} {Math.min(currentPage * ITEMS_PER_PAGE, sortedForms.length)} {t('of') || 'of'} {sortedForms.length} {t('entries') || 'entries'}
             </span>
             <div className="flex items-center gap-2">

@@ -128,19 +128,19 @@ function LiteDashboardGrid({ onOpenLead }) {
       {/* Floating Edit Dashboard Button -> opens Pro upgrade modal in Lite */}
       <button
         onClick={() => setProUpgradeOpen(true)}
-        className="absolute top-4 right-6 z-30 flex items-center justify-center w-12 h-12 bg-white border border-gray-200 shadow-lg text-gray-600 rounded-full hover:border-primary hover:text-primary hover:scale-105 transition-all cursor-pointer"
+        className="absolute top-3 right-3 sm:top-4 sm:right-6 z-30 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-white border border-gray-200 shadow-lg text-gray-600 rounded-full hover:border-primary hover:text-primary hover:scale-105 transition-all cursor-pointer"
         title={t('edit_dashboard') || 'Edit Dashboard'}
       >
-        <LayoutDashboard size={20} />
+        <LayoutDashboard size={18} />
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white rounded-full flex items-center justify-center shadow-xs">
           <Lock size={9} strokeWidth={2.5} />
         </div>
       </button>
 
       {/* Fixed Grid Layout Container for Lite */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 ">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-4 md:p-6">
         <ResponsiveGridLayout
-          className="layout -mx-2"
+          className="layout -mx-1 sm:-mx-2"
           layouts={{ lg: displayLayout }}
           breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
           cols={{ lg: 12, md: 12, sm: 6, xs: 1, xxs: 1 }}

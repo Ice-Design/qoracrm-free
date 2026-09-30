@@ -22,10 +22,10 @@ export function PermissionsTab({ wpUsers }) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="p-8 border-b border-gray-100 shrink-0">
+      <div className="p-3 sm:p-6 md:p-8 border-b border-gray-100 shrink-0">
         <h2 className="text-lg font-bold text-gray-900 mb-1">{t('permissions_title')}</h2>
       </div>
-      <div className="flex-1 overflow-y-auto p-8 space-y-8">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
 
         {/* Role Based */}
         <div>

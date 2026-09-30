@@ -188,7 +188,10 @@ export function UpgradeModal({ isOpen, onClose, feature, promoText: customPromoT
           <h2 className="upgrade-modal__title">{t('upgrade_to_pro_title') || 'Upgrade to Pro'}</h2>
           <p className="upgrade-modal__subtitle">
             {feature
-              ? (t('upgrade_feature_desc')?.replace('{feature}', feature) || `"${feature}" is available only in the Pro version of QoraCRM.`)
+              ? (() => {
+                  const resolved = t(feature) !== feature ? t(feature) : feature;
+                  return t('upgrade_feature_desc')?.replace('{feature}', resolved) || `«${resolved}» is available only in the Pro version of QoraCRM.`;
+                })()
               : (t('upgrade_all_desc') || 'Unlock all features of QoraCRM.')}
           </p>
         </div>

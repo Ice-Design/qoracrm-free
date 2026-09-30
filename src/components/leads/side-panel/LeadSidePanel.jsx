@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { X, Server, Trash2, Tag as TagIcon, Hash, FileText, UserCheck, Ghost, CheckCircle2 } from 'lucide-react';
+import { X, Server, Trash2, Tag as TagIcon, Hash, FileText, UserCheck, Ghost, CheckCircle2, MessageSquare, ExternalLink } from 'lucide-react';
 import { useI18n } from '../../../utils/I18nContext.jsx';
 import { formatCrmDate, getLeadTotalValue } from '../../../utils/helpers';
 import { StatusDropdown } from '../../ui/StatusDropdown';
-import { getPermissions } from '../leadHelpers';
+import { getPermissions, notifyLeadUpdated } from '../leadHelpers';
 import { LeadSidePanelData } from './LeadSidePanelData';
 import { LeadSidePanelComments } from './LeadSidePanelComments';
 import ExtensionSlot from '../../common/ExtensionSlot';
@@ -213,12 +213,22 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
       const payload = { entry_data: editingFields };
       if (changedEntries.length > 0) payload.meta_data = newMeta;
 
-      await window.wp.apiFetch({
+      const res = await window.wp.apiFetch({
         path: `/qoracrm/v1/leads/${lead.id}`,
         method: 'PUT',
         data: payload
       });
-      onUpdate({ ...lead, entry_data: editingFields, meta_data: newMeta });
+      if (res && res.lead) {
+        onUpdate(res.lead);
+      } else {
+        onUpdate({ ...lead, entry_data: editingFields, meta_data: newMeta });
+      }
+      if (res && res.created_leads && res.created_leads.length > 0) {
+        window.dispatchEvent(new CustomEvent('qoracrm-leads-created', { detail: { leads: res.created_leads } }));
+        notifyLeadUpdated(lead.id, { lead: res.lead, refreshAll: true });
+      } else if (res && res.automations_run > 0) {
+        notifyLeadUpdated(lead.id, { lead: res.lead });
+      }
     } catch (e) {
       console.error('Error saving fields', e);
     }
@@ -235,15 +245,29 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
   };
 
   const updateMeta = async (newMeta) => {
+    const prevMeta = lead.meta_data;
+    // Optimistic UI update — instant response without waiting for network/automations
+    onUpdate({ ...lead, meta_data: newMeta });
+
     try {
-      await window.wp.apiFetch({
+      const res = await window.wp.apiFetch({
         path: `/qoracrm/v1/leads/${lead.id}`,
         method: 'PUT',
         data: { meta_data: newMeta }
       });
-      onUpdate({ ...lead, meta_data: newMeta });
+      if (res && res.lead) {
+        onUpdate(res.lead);
+      }
+      if (res && res.created_leads && res.created_leads.length > 0) {
+        window.dispatchEvent(new CustomEvent('qoracrm-leads-created', { detail: { leads: res.created_leads } }));
+        notifyLeadUpdated(lead.id, { lead: res.lead, refreshAll: true });
+      } else if (res && res.automations_run > 0) {
+        notifyLeadUpdated(lead.id, { lead: res.lead });
+      }
     } catch (e) {
       console.error('Error updating meta', e);
+      // Revert if request failed
+      onUpdate({ ...lead, meta_data: prevMeta });
     }
   };
 
@@ -267,66 +291,105 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 shrink-0 bg-white/80 backdrop-blur-xs z-20 relative">
-        <div className="flex items-center gap-3 min-w-0">
-          <h2 className="text-xl font-extrabold text-gray-900 tracking-tight shrink-0">Lead #{lead.id}</h2>
-          <span className="text-xs text-gray-400 font-medium shrink-0">{formatCrmDate(lead.created_at, t)}</span>
+      <div className="flex flex-col px-3.5 sm:px-6 py-3 border-b border-gray-100 shrink-0 bg-white/95 backdrop-blur-xs z-20 relative gap-2.5">
+        {/* Top Row: Lead ID, Date, and Top-Right Action Buttons (Pinned right, always visible!) */}
+        <div className="flex items-center justify-between w-full gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-wrap">
+            <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight shrink-0">
+              Lead #{lead.id}
+            </h2>
+            <span className="text-xs text-gray-400 font-medium shrink-0">
+              {formatCrmDate(lead.created_at, t)}
+            </span>
+            {/* On desktop, show status right here */}
+            <div className="hidden sm:flex items-center">
+              {lead.status === 'archive' || lead.status === 'spam' || lead.status === 'abandoned' ? (
+                <div className="flex items-center gap-2 bg-white border border-gray-200 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg shadow-2xs">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${lead.status === 'spam' ? 'bg-amber-500' : lead.status === 'abandoned' ? 'bg-indigo-500' : 'bg-gray-400'}`}></span>
+                  <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">
+                    {lead.status === 'spam' ? (t('spam') || 'Spam') : lead.status === 'abandoned' ? (t('abandoned_forms') || 'Abandoned') : (t('archived') || 'Archived')}
+                  </span>
+                </div>
+              ) : (
+                <StatusDropdown
+                  value={lead.status}
+                  onChange={handleStatusChange}
+                  statuses={globalStatuses}
+                  disabled={!permissions.can_edit_status_tags}
+                  menuPosition="bottom"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Right Action Icons & Close Button - always pinned to top-right */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {lead.status === 'archive' || lead.status === 'spam' || lead.status === 'abandoned' ? (
+              permissions.is_admin && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      let histText = t('lead_history_restored') || 'Restored from archive';
+                      if (lead.status === 'abandoned') histText = t('lead_history_converted') || 'Converted from abandoned form';
+                      if (lead.status === 'spam') histText = t('lead_history_restored_spam') || 'Restored from spam';
+                      updateStatus(lead.id, 'new', createHistoryEntry(histText, t));
+                    }}
+                    className="px-2.5 sm:px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1 whitespace-nowrap active:scale-95 cursor-pointer"
+                  >
+                    <UserCheck size={14} />
+                    <span className="hidden xs:inline">{lead.status === 'spam' ? (t('not_spam') || 'Not Spam') : lead.status === 'abandoned' ? (t('convert_to_lead') || 'Convert to Lead') : (t('restore') || 'Restore')}</span>
+                  </button>
+                  <button
+                    onClick={() => deleteLeadPermanently(lead.id)}
+                    className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all border border-rose-200/80 shadow-2xs active:scale-95 cursor-pointer"
+                    title={t('delete_permanently') || 'Delete Permanently'}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              )
+            ) : (
+              permissions.can_delete && (
+                <button
+                  onClick={() => handleMoveToArchive(lead.id)}
+                  className="p-2 hover:bg-red-50 hover:text-red-600 rounded-xl text-gray-400 transition-colors"
+                  title={t('move_to_archive') || 'Move to Archive'}
+                >
+                  <Server size={17} />
+                </button>
+              )
+            )}
+            {/* Close Button - prominent, easy to tap */}
+            <button
+              onClick={onClose}
+              className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 rounded-xl transition-all active:scale-95 cursor-pointer"
+              title={t('close') || 'Close'}
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Row 2: Status Dropdown full-width / cleanly aligned */}
+        <div className="flex sm:hidden items-center w-full pt-1">
           {lead.status === 'archive' || lead.status === 'spam' || lead.status === 'abandoned' ? (
-            <div className="flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-2xs">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg w-full">
               <span className={`w-2 h-2 rounded-full shrink-0 ${lead.status === 'spam' ? 'bg-amber-500' : lead.status === 'abandoned' ? 'bg-indigo-500' : 'bg-gray-400'}`}></span>
-              <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">
+              <span className="text-xs font-semibold text-gray-700">
                 {lead.status === 'spam' ? (t('spam') || 'Spam') : lead.status === 'abandoned' ? (t('abandoned_forms') || 'Abandoned') : (t('archived') || 'Archived')}
               </span>
             </div>
           ) : (
-            <StatusDropdown
-              value={lead.status}
-              onChange={handleStatusChange}
-              statuses={globalStatuses}
-              disabled={!permissions.can_edit_status_tags}
-              menuPosition="bottom"
-            />
+            <div className="w-full">
+              <StatusDropdown
+                value={lead.status}
+                onChange={handleStatusChange}
+                statuses={globalStatuses}
+                disabled={!permissions.can_edit_status_tags}
+                menuPosition="bottom"
+              />
+            </div>
           )}
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {lead.status === 'archive' || lead.status === 'spam' || lead.status === 'abandoned' ? (
-            permissions.is_admin && (
-              <div className="flex items-center gap-2 mr-2">
-                <button
-                  onClick={() => {
-                    let histText = t('lead_history_restored') || 'Restored from archive';
-                    if (lead.status === 'abandoned') histText = t('lead_history_converted') || 'Converted from abandoned form';
-                    if (lead.status === 'spam') histText = t('lead_history_restored_spam') || 'Restored from spam';
-                    updateStatus(lead.id, 'new', createHistoryEntry(histText, t));
-                  }}
-                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap active:scale-95 cursor-pointer"
-                >
-                  <UserCheck size={15} />
-                  <span>{lead.status === 'spam' ? (t('not_spam') || 'Not Spam') : lead.status === 'abandoned' ? (t('convert_to_lead') || 'Convert to Lead') : (t('restore') || 'Restore')}</span>
-                </button>
-                <button
-                  onClick={() => deleteLeadPermanently(lead.id)}
-                  className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all border border-rose-200/80 shadow-2xs active:scale-95 cursor-pointer"
-                  title={t('delete_permanently') || 'Delete Permanently'}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            )
-          ) : (
-            permissions.can_delete && (
-              <button
-                onClick={() => handleMoveToArchive(lead.id)}
-                className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg text-gray-400 transition-colors mr-2"
-                title={t('move_to_archive') || 'Move to Archive'}
-              >
-                <Server size={18} />
-              </button>
-            )
-          )}
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-900 transition-colors">
-            <X size={20} />
-          </button>
         </div>
       </div>
 
@@ -352,11 +415,11 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
       />
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8">
+      <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 flex flex-col gap-4 sm:gap-6">
 
         {/* Tags Section */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] p-5">
-          <div className="flex items-center gap-2 mb-5 text-[11px] font-extrabold uppercase tracking-widest text-gray-400">
+        <section className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] p-3.5 sm:p-5">
+          <div className="flex items-center gap-2 mb-4 sm:mb-5 text-[11px] font-extrabold uppercase tracking-widest text-gray-400">
             <TagIcon size={14} className="text-primary" /> {t('assigned_tags') || 'Assigned Tags'}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -502,7 +565,22 @@ export function LeadSidePanel({ lead, onClose, onUpdate, updateStatus, globalTag
               return (
                 <div key={k}>
                   <div className="text-[11px] font-semibold text-gray-500 mb-1">{label}</div>
-                  <div className="text-xs font-medium text-gray-900 break-all">{typeof v === 'object' && v !== null ? JSON.stringify(v) : v}</div>
+                  {k === 'conversation_id' ? (
+                    <a
+                      href={`#/chats/${v}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-dark hover:underline"
+                    >
+                      <MessageSquare size={12} />
+                      <span>#{v} ({t('open_chat') || 'Open Chat'})</span>
+                      <ExternalLink size={11} />
+                    </a>
+                  ) : k === 'channel' ? (
+                    <span className="inline-block text-[10px] bg-amber-50 text-amber-800 border border-amber-200/60 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                      {String(v).replace(/_/g, ' ')}
+                    </span>
+                  ) : (
+                    <div className="text-xs font-medium text-gray-900 break-all">{typeof v === 'object' && v !== null ? JSON.stringify(v) : v}</div>
+                  )}
                 </div>
               );
             })}

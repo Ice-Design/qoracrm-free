@@ -1,7 +1,7 @@
 {
   "name": "qoracrm-free",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,8 +12,13 @@
     "@tailwindcss/vite": "^4.3.1",
     "@tiptap/extension-image": "^3.26.1",
     "@tiptap/extension-link": "^3.26.1",
+    "@tiptap/extension-table": "^3.26.1",
+    "@tiptap/extension-table-cell": "^3.26.1",
+    "@tiptap/extension-table-header": "^3.26.1",
+    "@tiptap/extension-table-row": "^3.26.1",
     "@tiptap/react": "^3.26.1",
     "@tiptap/starter-kit": "^3.26.1",
+    "@xyflow/react": "^12.11.3",
     "autoprefixer": "^10.5.0",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.18.0",

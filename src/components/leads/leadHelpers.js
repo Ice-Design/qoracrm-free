@@ -23,3 +23,31 @@ export const createHistoryEntry = (text, t) => ({
   author: getCurrentUserName(t),
   date: new Date().toISOString(),
 });
+
+/**
+ * Triggers a global event to refresh a specific lead (and/or all leads on the board).
+ */
+export const notifyLeadUpdated = (leadId, options = {}) => {
+  if (!leadId) return;
+  const { refreshAll = false, lead = null } = options;
+  window.dispatchEvent(new CustomEvent('qoracrm-lead-updated', {
+    detail: { leadId, refreshAll, lead }
+  }));
+};
+
+/**
+ * Triggers a global event to refresh all leads on the board.
+ */
+export const refreshAllLeads = () => {
+  window.dispatchEvent(new CustomEvent('qoracrm-refresh-leads'));
+};
+
+/**
+ * React hook to interact with lead and board synchronization
+ */
+export const useLeadSync = () => {
+  return {
+    syncLead: (leadId, options) => notifyLeadUpdated(leadId, options),
+    syncAllLeads: () => refreshAllLeads(),
+  };
+};

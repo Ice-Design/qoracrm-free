@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, FileText, Users, Settings as SettingsIcon, Maximize, Minimize } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Settings as SettingsIcon, Maximize, Minimize, Workflow, MessageSquare } from 'lucide-react';
 
 import { useFormStore } from './store/useFormStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -15,9 +15,19 @@ import { ConfirmModal } from './components/ui/ConfirmModal';
 import { NotificationBell } from './components/ui/NotificationBell';
 import { useI18n } from './utils/I18nContext';
 import { PlanBadge, UpgradeModal } from './components/common/ProBadge';
+import { AutomationsView } from './components/automations/AutomationsView';
+import { ChatsView } from './components/chats/ChatsView';
+import { useFeature } from './hooks/useFeature';
 
 function App() {
   const { t } = useI18n();
+  const { isPro } = useFeature();
+
+  const permissions = window.qoraCrmData?.permissions || {};
+  const isAdmin = Boolean(permissions.is_admin);
+  const canManageForms = isAdmin || Boolean(permissions.can_manage_forms);
+  const canManageAutomations = isAdmin || Boolean(permissions.can_manage_automations);
+  const canManageChats = (isAdmin || Boolean(permissions.can_manage_chats)) && isPro;
 
 
   const {
@@ -52,13 +62,28 @@ function App() {
       urlChanged = true;
     }
 
+    const automationParam = params.get('automation_id') || params.get('automation');
+    if (automationParam) {
+      if (automationParam === 'new') {
+        targetHash = '#/automations/builder/new';
+      } else {
+        targetHash = `#/automations/builder/${automationParam}`;
+      }
+      params.delete('automation_id');
+      params.delete('automation');
+      urlChanged = true;
+    }
+
     if (params.get('open_upgrade') === '1') {
       openUpgradeModal();
       urlChanged = true;
     }
 
     if (params.get('license_refreshed') === '1') {
-      localStorage.removeItem('qora_sec_downgrade');
+      localStorage.removeItem('_qc_sync_state');
+      if (typeof document !== 'undefined') {
+        document.cookie = '_qora_sess=; path=/; max-age=0; SameSite=Lax';
+      }
       urlChanged = true;
 
       setTimeout(() => {
@@ -102,6 +127,7 @@ function App() {
   }, []);
 
   const confirmNavigation = () => {
+    window.__qoracrm_automation_is_dirty = false;
     useFormStore.getState().markClean();
     useSettingsStore.getState().resetDirty();
     window.location.hash = pendingNavigation;
@@ -152,11 +178,17 @@ function App() {
         <div className="flex gap-2 h-full items-center flex-1 justify-between">
           <div className="flex gap-1 md:gap-2 h-full items-center">
             <NavItem icon={<LayoutDashboard size={18} />} label={t('dashboard') || "Dashboard"} isActive={activeTab === 'dashboard'} onClick={() => navigate('#/dashboard')} />
-            {(window.qoraCrmData?.permissions?.is_admin || window.qoraCrmData?.permissions?.can_manage_forms) && (
+            {canManageForms && (
               <NavItem icon={<FileText size={18} />} label={t('forms') || "Forms"} isActive={activeTab === 'forms'} onClick={() => navigate('#/forms/list')} />
             )}
             <NavItem icon={<Users size={18} />} label={t('leads') || "Leads"} isActive={activeTab === 'leads'} onClick={() => navigate(`#/leads/${leadsViewMode}`)} />
-            {window.qoraCrmData?.permissions?.is_admin && (
+            {canManageAutomations && (
+              <NavItem icon={<Workflow size={18} />} label={t('automations') || "Automations"} badge="beta" isActive={activeTab === 'automations'} onClick={() => navigate('#/automations')} />
+            )}
+            {canManageChats && (
+              <NavItem icon={<MessageSquare size={18} />} label={t('chats') || "Live Chat"} badge="beta" isActive={activeTab === 'chats'} onClick={() => navigate('#/chats')} />
+            )}
+            {isAdmin && (
               <NavItem icon={<SettingsIcon size={18} />} label={t('settings') || "Settings"} isActive={activeTab === 'settings'} onClick={() => navigate('#/settings')} />
             )}
           </div>
@@ -188,10 +220,10 @@ function App() {
       </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 min-h-0 flex flex-col overflow-hidden relative">
         {activeTab === 'dashboard' && <DashboardView onOpenLead={(id) => navigate(`#/leads/${leadsViewMode || 'kanban'}/${id}`)} />}
-        {activeTab === 'forms' && activeView === 'list' && <FormsList onOpenBuilder={(id) => navigate(id ? `#/forms/builder/${id}` : '#/forms/builder')} />}
-        {activeTab === 'forms' && activeView === 'builder' && <FormBuilder onBack={() => navigate('#/forms/list')} routeFormId={routeId} />}
+        {activeTab === 'forms' && canManageForms && activeView === 'list' && <FormsList onOpenBuilder={(id) => navigate(id ? `#/forms/builder/${id}` : '#/forms/builder')} />}
+        {activeTab === 'forms' && canManageForms && activeView === 'builder' && <FormBuilder onBack={() => navigate('#/forms/list')} routeFormId={routeId} />}
         {activeTab === 'leads' && (
           <LeadsView
             viewMode={leadsViewMode}
@@ -203,7 +235,16 @@ function App() {
             }}
           />
         )}
-        {activeTab === 'settings' && <SettingsView />}
+        {activeTab === 'settings' && isAdmin && <SettingsView />}
+        {activeTab === 'automations' && canManageAutomations && (
+          <AutomationsView
+            openUpgradeModal={openUpgradeModal}
+            routeAutomationId={routeId}
+            activeView={activeView}
+            navigate={navigate}
+          />
+        )}
+        {activeTab === 'chats' && canManageChats && <ChatsView routeConvId={routeId} />}
       </main>
 
       {/* Unsaved Changes Modal */}

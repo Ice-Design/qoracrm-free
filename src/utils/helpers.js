@@ -70,7 +70,11 @@ export const getLeadDisplayName = (lead, t) => {
   const meta = lead.meta_data || lead.lead_meta_data || {};
   
   if (entry.name) return formatLeadName(entry.name);
-  if (entry.first_name) return formatLeadName(entry.first_name);
+  if (entry.names) return formatLeadName(entry.names);
+  if (entry.first_name) {
+    const fullName = entry.last_name ? `${entry.first_name} ${entry.last_name}`.trim() : entry.first_name;
+    return formatLeadName(fullName);
+  }
   if (entry['your-name']) return formatLeadName(entry['your-name']);
   
   if (meta.field_labels) {

@@ -39,30 +39,26 @@ export function FieldConditions({ field, onUpdateField, availableFields: propAva
         <label className="text-sm font-bold text-gray-700">{t('conditional_logic') || 'Conditional Logic'}</label>
       </div>
       <div className="flex gap-6 mb-4">
-        <label className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group">
+        <button
+          type="button"
+          onClick={() => updateConditions({ enabled: true })}
+          className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group bg-transparent border-0 p-0"
+        >
           <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${conditions.enabled ? 'border-primary' : 'border-gray-300 group-hover:border-primary/50'}`}>
             {conditions.enabled && <div className="w-2 h-2 rounded-full bg-primary" />}
           </div>
-          <input
-            type="radio"
-            checked={conditions.enabled}
-            onChange={() => updateConditions({ enabled: true })}
-            className="sr-only"
-          />
-          {t('yes') || 'Yes'}
-        </label>
-        <label className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group">
+          <span>{t('yes') || 'Yes'}</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => updateConditions({ enabled: false })}
+          className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group bg-transparent border-0 p-0"
+        >
           <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${!conditions.enabled ? 'border-primary' : 'border-gray-300 group-hover:border-primary/50'}`}>
             {!conditions.enabled && <div className="w-2 h-2 rounded-full bg-primary" />}
           </div>
-          <input
-            type="radio"
-            checked={!conditions.enabled}
-            onChange={() => updateConditions({ enabled: false })}
-            className="sr-only"
-          />
-          {t('no') || 'No'}
-        </label>
+          <span>{t('no') || 'No'}</span>
+        </button>
       </div>
 
       {conditions.enabled && (
@@ -72,30 +68,26 @@ export function FieldConditions({ field, onUpdateField, availableFields: propAva
             <Info size={14} className="text-gray-400" />
           </div>
           <div className="flex gap-5 mb-5">
-            <label className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group">
+            <button
+              type="button"
+              onClick={() => updateConditions({ match: 'any' })}
+              className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group bg-transparent border-0 p-0"
+            >
               <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${conditions.match === 'any' ? 'border-primary' : 'border-gray-300 group-hover:border-primary/50'}`}>
                 {conditions.match === 'any' && <div className="w-2 h-2 rounded-full bg-primary" />}
               </div>
-              <input
-                type="radio"
-                checked={conditions.match === 'any'}
-                onChange={() => updateConditions({ match: 'any' })}
-                className="sr-only"
-              />
               <span className={conditions.match === 'any' ? 'text-primary' : ''}>{t('any') || 'Any'}</span>
-            </label>
-            <label className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group">
+            </button>
+            <button
+              type="button"
+              onClick={() => updateConditions({ match: 'all' })}
+              className="flex items-center gap-2 text-[13px] font-semibold text-gray-700 cursor-pointer group bg-transparent border-0 p-0"
+            >
               <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${conditions.match === 'all' ? 'border-primary' : 'border-gray-300 group-hover:border-primary/50'}`}>
                 {conditions.match === 'all' && <div className="w-2 h-2 rounded-full bg-primary" />}
               </div>
-              <input
-                type="radio"
-                checked={conditions.match === 'all'}
-                onChange={() => updateConditions({ match: 'all' })}
-                className="sr-only"
-              />
               <span className={conditions.match === 'all' ? 'text-primary' : ''}>{t('all') || 'All'}</span>
-            </label>
+            </button>
           </div>
 
           <div className="space-y-3">

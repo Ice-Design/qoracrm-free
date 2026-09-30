@@ -488,10 +488,10 @@ export function ListView({ leads, onSelect, updateStatus, selectedLeadId, global
   }
 
   return (
-    <div className="p-8 overflow-y-auto h-full flex flex-col gap-4">
+    <div className="p-3 sm:p-6 md:p-8 overflow-y-auto h-full flex flex-col gap-3 sm:gap-4">
       {/* Archive View Header Actions */}
       {(viewMode === 'archive' || viewMode === 'spam') && permissions.is_admin && leads.length > 0 && (
-        <div className="mb-6 flex justify-end">
+        <div className="mb-4 sm:mb-6 flex justify-end">
           <button
             onClick={handleEmptyArchive}
             className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors shadow-sm"
@@ -623,8 +623,8 @@ export function ListView({ leads, onSelect, updateStatus, selectedLeadId, global
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-auto">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-x-auto w-full">
+        <table className="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm whitespace-nowrap">
               {(permissions.is_admin || permissions.can_edit_status_tags) && (

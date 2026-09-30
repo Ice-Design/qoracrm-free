@@ -153,6 +153,7 @@ export function NotificationBell({ onOpenLead, onCloseLead, t }) {
                   let creatorName = t('form') || 'Form';
                   if (source === 'api_webhook') creatorName = t('api') || 'API';
                   else if (source === 'manual') creatorName = t('manual') || 'Manual';
+                  else if (source === 'Automation Workflow' || source === 'automation') creatorName = t('automations') || 'Automations';
 
                   return (
                     <div

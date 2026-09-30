@@ -21,11 +21,17 @@
   display: none;
 }
 
+/* React Flow Attribution */
+.react-flow__attribution {
+  display: none !important;
+}
+
 .scrollbar-none,
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 
 /* Custom responsive helper classes to bypass WordPress core .hidden conflict */
 @media (max-width: 639px) {
@@ -38,6 +44,33 @@
   .qoracrm-hidden-tablet {
     display: none !important;
   }
+}
+
+/* Fix WordPress core .hidden { display: none !important; } override when combined with responsive classes */
+@media (min-width: 640px) {
+  .sm\:inline { display: inline !important; }
+  .sm\:flex { display: flex !important; }
+  .sm\:block { display: block !important; }
+  .sm\:inline-block { display: inline-block !important; }
+  .sm\:hidden { display: none !important; }
+}
+@media (min-width: 768px) {
+  .md\:flex { display: flex !important; }
+  .md\:inline { display: inline !important; }
+  .md\:block { display: block !important; }
+  .md\:hidden { display: none !important; }
+}
+@media (min-width: 1024px) {
+  .lg\:flex { display: flex !important; }
+  .lg\:inline { display: inline !important; }
+  .lg\:block { display: block !important; }
+  .lg\:hidden { display: none !important; }
+}
+@media (min-width: 1280px) {
+  .xl\:flex { display: flex !important; }
+  .xl\:inline { display: inline !important; }
+  .xl\:block { display: block !important; }
+  .xl\:hidden { display: none !important; }
 }
 
 /* WP Core overrides */
@@ -200,7 +233,8 @@
 }
 
 /* Radio Button Dot */
-#qoracrm-root input[type="radio"]:not(.sr-only):checked::before {
+#qoracrm-root input[type="radio"]:not(.sr-only):checked::before,
+#qoracrm-root input[type="checkbox"]:not(.sr-only):checked::before {
   content: none !important;
 }
 
@@ -369,8 +403,25 @@
   display: none !important;
 }
 
+.react-datepicker-popper {
+  z-index: 999999 !important;
+}
+
 .react-datepicker-popper[data-placement^="bottom"] {
   padding-top: 8px !important;
+}
+
+.react-datepicker--time-only {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e5e7eb !important;
+  overflow: hidden !important;
+}
+
+.react-datepicker--time-only .react-datepicker__time-container,
+.react-datepicker--time-only .react-datepicker__time-box {
+  width: 95px !important;
+  border-radius: 12px !important;
 }
 
 /* Override react-grid-layout placeholder color */
@@ -757,4 +808,36 @@ body.toplevel_page_qoracrm #wpfooter {
 .gform-admin #qoracrm-root .react-colorful__last-control {
   border-radius: 8px;
   height: 12px;
+}
+
+/* Utility: small form input used in automation builder config panels */
+.input-sm {
+  width: 100%;
+  font-size: 0.8125rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.625rem;
+  padding: 0.375rem 0.625rem;
+  background-color: #f9fafb;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.input-sm:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background-color: #fff;
+}
+
+.input-sm::placeholder {
+  color: #d1d5db;
+}
+
+/* WordPress Media Modal must always appear above CRM modal dialogs */
+.media-modal {
+  z-index: 10000000 !important;
+}
+
+.media-modal-backdrop {
+  display: none !important;
 }

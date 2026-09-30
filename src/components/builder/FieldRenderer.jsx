@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, ArrowUp, Type, Mail, Hash, Link, Clock, MapPin, Globe, User, Phone, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Trash2, ArrowUp, ArrowDown, Type, Mail, Hash, Link, Clock, MapPin, Globe, User, Phone, ShieldCheck, ChevronDown } from 'lucide-react';
 import { useFormStore } from '../../store/useFormStore';
 import { useI18n } from '../../utils/I18nContext';
 import ExtensionSlot from '../common/ExtensionSlot';
@@ -21,13 +21,14 @@ const PRO_FIELD_TYPES = [
  * Renders a preview of a form field on the builder canvas.
  * Handles selection and quick-delete interactions.
  */
-export function FieldRenderer({ field, isSelected, isDragging, onSelectField, onRemoveField, onMoveUp }) {
+export function FieldRenderer({ field, isSelected, isDragging, onSelectField, onRemoveField, onMoveUp, onMoveDown }) {
   const { t } = useI18n();
   const store = useFormStore();
   const formSettings = store.formSettings;
   const selectField = onSelectField || store.selectField;
   const removeField = onRemoveField || store.removeField;
   const moveFieldUp = onMoveUp || store.moveFieldUp;
+  const moveFieldDown = onMoveDown || store.moveFieldDown;
 
   const showIcons = formSettings?.showInputIcons !== false;
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -36,41 +37,60 @@ export function FieldRenderer({ field, isSelected, isDragging, onSelectField, on
     <div
       onClick={() => selectField(field.id)}
       onMouseLeave={() => setShowConfirmDelete(false)}
-      className={`border rounded-xl p-5 relative cursor-pointer transition-all h-full group ${isSelected
+      className={`border rounded-xl p-3.5 sm:p-5 relative cursor-pointer transition-all h-full group ${isSelected
         ? 'border-primary bg-white shadow-[0_4px_12px_rgba(212,175,55,0.1)]'
         : 'border-transparent hover:bg-gray-50 hover:border-gray-200 bg-white'
         } ${isDragging ? 'opacity-50 scale-95' : 'opacity-100'}`}
     >
-      {/* Quick Delete Overlay */}
-      <div className="absolute top-2 right-2 flex items-center z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Quick Action Overlay (Move Up, Move Down, Delete) */}
+      <div className={`absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 flex items-center z-10 transition-opacity ${
+        isSelected ? 'opacity-100' : 'opacity-100 sm:opacity-0 sm:group-hover:opacity-100'
+      }`}>
         {showConfirmDelete ? (
-          <div className="flex gap-1 bg-white shadow-sm border border-red-200 rounded-md p-1 items-center">
-            <span className="text-[10px] font-bold text-red-500 px-1">{t('delete') || 'Delete'}?</span>
-            <button onClick={(e) => { e.stopPropagation(); removeField(field.id); }} className="px-2 py-0.5 bg-red-500 text-white rounded text-[10px] font-bold hover:bg-red-600">{t('yes') || 'Yes'}</button>
-            <button onClick={(e) => { e.stopPropagation(); setShowConfirmDelete(false); }} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-bold hover:bg-gray-200">{t('no') || 'No'}</button>
+          <div className="flex gap-1.5 bg-white shadow-md border border-red-200 rounded-lg p-1 sm:p-1.5 items-center">
+            <span className="text-[10px] sm:text-[11px] font-bold text-red-500 px-1">{t('delete') || 'Delete'}?</span>
+            <button
+              onClick={(e) => { e.stopPropagation(); removeField(field.id); }}
+              className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-red-500 text-white rounded text-[11px] sm:text-xs font-bold hover:bg-red-600 transition-colors cursor-pointer"
+            >
+              {t('yes') || 'Yes'}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); setShowConfirmDelete(false); }}
+              className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-gray-100 text-gray-600 rounded text-[11px] sm:text-xs font-bold hover:bg-gray-200 transition-colors cursor-pointer"
+            >
+              {t('no') || 'No'}
+            </button>
           </div>
         ) : (
-          <div className="flex gap-1 bg-white p-1 rounded-md shadow-sm border border-gray-100">
+          <div className="flex items-center gap-0.5 sm:gap-1 bg-white/95 backdrop-blur-xs p-0.5 sm:p-1 rounded-lg shadow-sm border border-gray-200">
             <button
               onClick={(e) => { e.stopPropagation(); moveFieldUp(field.id); }}
-              className="p-1 text-gray-400 hover:text-primary hover:bg-primary-light rounded transition-colors"
+              className="p-1 sm:p-1.5 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-md transition-all active:scale-95 cursor-pointer"
               title={t('move_up') || 'Move Up'}
             >
-              <ArrowUp size={16} />
+              <ArrowUp size={13} className="sm:w-[15px] sm:h-[15px]" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); moveFieldDown(field.id); }}
+              className="p-1 sm:p-1.5 text-gray-500 hover:text-primary hover:bg-primary/10 rounded-md transition-all active:scale-95 cursor-pointer"
+              title={t('move_down') || 'Move Down'}
+            >
+              <ArrowDown size={13} className="sm:w-[15px] sm:h-[15px]" />
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); setShowConfirmDelete(true); }}
-              className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              className="p-1 sm:p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-md transition-all active:scale-95 cursor-pointer"
               title={t('delete') || 'Delete'}
             >
-              <Trash2 size={16} />
+              <Trash2 size={13} className="sm:w-[15px] sm:h-[15px]" />
             </button>
           </div>
         )}
       </div>
 
       {field.type !== 'hidden' && field.type !== 'html' && field.type !== 'heading' && field.type !== 'consent' && field.type !== 'total' && field.label && (
-        <label className="block text-sm font-bold mb-2.5 text-gray-800">
+        <label className="block text-sm font-bold mb-2.5 text-gray-800 pr-20 sm:pr-24">
           {field.label} {field.required && <span className="text-red-500">*</span>}
           {field.type === 'hidden' && <span className="ml-2 text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">{t('hidden') || 'HIDDEN'}</span>}
         </label>
@@ -226,8 +246,8 @@ export function FieldRenderer({ field, isSelected, isDragging, onSelectField, on
       )}
 
       {field.type === 'consent' && (
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-gray-300 shrink-0 rounded shrink-0"></div>
+        <div className="flex items-start sm:items-center gap-2 pr-20 sm:pr-24 min-h-[32px]">
+          <div className="w-4 h-4 border-2 border-gray-300 shrink-0 rounded mt-0.5 sm:mt-0"></div>
           <span className="text-sm text-gray-600 leading-tight">
             {field.label ? (
               <span dangerouslySetInnerHTML={{

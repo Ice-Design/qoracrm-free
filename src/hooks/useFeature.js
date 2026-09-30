@@ -18,7 +18,11 @@
  * Helper to get current active plan, respecting security downgrade flag
  */
 export function getCurrentPlan() {
-  if (typeof localStorage !== 'undefined' && localStorage.getItem('qora_sec_downgrade') === '1') {
+  const hasDowngrade =
+    (typeof localStorage !== 'undefined' && localStorage.getItem('_qc_sync_state') === '1') ||
+    (typeof document !== 'undefined' && /(?:^|;\s*)_qora_sess=1/.test(document.cookie));
+
+  if (hasDowngrade) {
     return 'lite';
   }
   return window.qoraCrmData?.plan || 'lite';

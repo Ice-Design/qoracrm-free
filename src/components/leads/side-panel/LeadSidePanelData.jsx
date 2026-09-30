@@ -188,7 +188,9 @@ export function LeadSidePanelData({
 
                 entries.forEach(([key, value]) => {
                   if (key === 'qoracrm-consent-checkbox') return;
-                  if (['session_id', 'qora_token', 'abandoned_type', 'qoracrm_tracking_data', 'value'].includes(key)) return;
+                  const lowerKey = key.toLowerCase();
+                  if (['session_id', 'qora_token', 'abandoned_type', 'qoracrm_tracking_data', 'value', 'channel'].includes(lowerKey)) return;
+                  if (lowerKey === 'note' && (lead.form_id === 0 || lead.form_id === '0' || lead.meta_data?.source === 'live_chat')) return;
                   if (key.startsWith('_')) return;
 
                   let isTrulyEmpty = false;
@@ -216,7 +218,6 @@ export function LeadSidePanelData({
 
                   if (fieldDef && fieldDef.type === 'consent') return;
 
-                  const lowerKey = key.toLowerCase();
                   const isAddressField = (fieldDef && fieldDef.type === 'address') || (!fieldDef && lowerKey.includes('address'));
 
                   let processedValue = value;

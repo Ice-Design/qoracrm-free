@@ -184,6 +184,22 @@ export const useFormStore = create((set) => ({
     return { fields: [...otherFields, ...newStepFields], isDirty: true, past: [...state.past, snap].slice(-MAX_HISTORY) };
   }),
 
+  moveFieldDown: (id) => set((state) => {
+    const stepFields = state.fields.filter(f => f.stepId === state.activeStepId);
+    const indexInStep = stepFields.findIndex(f => f.id === id);
+    if (indexInStep === -1 || indexInStep >= stepFields.length - 1) return state; // Already at bottom or not found
+    
+    const snap = takeSnapshot(state);
+    const otherFields = state.fields.filter(f => f.stepId !== state.activeStepId);
+    const newStepFields = [...stepFields];
+    
+    const temp = newStepFields[indexInStep + 1];
+    newStepFields[indexInStep + 1] = newStepFields[indexInStep];
+    newStepFields[indexInStep] = temp;
+    
+    return { fields: [...otherFields, ...newStepFields], isDirty: true, past: [...state.past, snap].slice(-MAX_HISTORY) };
+  }),
+
   // Load Schema logic: reconstruct steps if needed
   loadSchema: (schema, title, defaults = {}) => set((state) => {
     const isOldFormat = Array.isArray(schema) && schema.every(f => !f.stepId);

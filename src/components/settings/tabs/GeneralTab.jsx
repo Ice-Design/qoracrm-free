@@ -100,9 +100,9 @@ export function GeneralTab() {
   };
 
   return (
-    <div className="p-8 space-y-6 h-full overflow-y-auto">
+    <div className="p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6 h-full overflow-y-auto">
       <h2 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-4">{t('tab_general')}</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
         <div className="max-w-sm">
           <label className="block text-sm font-semibold text-gray-700 mb-2">{t('general_language') || 'Language'}</label>
           <p className="text-xs text-gray-400 mb-3">{t('general_language_desc') || 'Select the interface language.'}</p>

@@ -3,9 +3,11 @@ import { WidgetContainer } from './WidgetContainer';
 import { X, Check } from 'lucide-react';
 import { useSettingsStore } from '../../../store/useSettingsStore';
 import { CURRENCIES } from '../../../utils/currencies';
+import { useFeature } from '../../../hooks/useFeature';
 
 export function TopStatsWidget({ widget, onUpdateSettings, validLeads, forms, globalStatuses, t, onRemove }) {
   const [showSettings, setShowSettings] = useState(false);
+  const { isPro } = useFeature();
 
   // Default settings
   const defaultSettings = {
@@ -14,7 +16,7 @@ export function TopStatsWidget({ widget, onUpdateSettings, validLeads, forms, gl
     showConvertedLeads: true,
     showViews: true,
     showActiveForms: true,
-    showIncome: true
+    showIncome: isPro
   };
   const settings = { ...defaultSettings, ...(widget.settings || {}) };
   const { generalCurrency, generalCurrencyPos } = useSettingsStore();
@@ -45,12 +47,14 @@ export function TopStatsWidget({ widget, onUpdateSettings, validLeads, forms, gl
         }
       }
 
-      const payments = l.meta_data?.payments || [];
-      payments.forEach(p => {
-        incomeCount += parseFloat(p.amount) || 0;
-      });
-      if (l.meta_data?.stripe_payment_status === 'succeeded' && l.meta_data?.stripe_amount) {
-        incomeCount += parseFloat(l.meta_data.stripe_amount) || 0;
+      if (isPro) {
+        const payments = l.meta_data?.payments || [];
+        payments.forEach(p => {
+          incomeCount += parseFloat(p.amount) || 0;
+        });
+        if (l.meta_data?.stripe_payment_status === 'succeeded' && l.meta_data?.stripe_amount) {
+          incomeCount += parseFloat(l.meta_data.stripe_amount) || 0;
+        }
       }
     });
 
@@ -65,7 +69,7 @@ export function TopStatsWidget({ widget, onUpdateSettings, validLeads, forms, gl
       activeForms,
       income: incomeCount
     };
-  }, [validLeads, forms, globalStatuses]);
+  }, [validLeads, forms, globalStatuses, isPro]);
 
   const toggleSetting = (key) => {
     onUpdateSettings(widget.id, { ...settings, [key]: !settings[key] });
@@ -75,7 +79,7 @@ export function TopStatsWidget({ widget, onUpdateSettings, validLeads, forms, gl
     { key: 'showTotalLeads', value: stats.totalLeads, label: t('stat_total_leads') || 'Total Leads', color: 'text-gray-900' },
     { key: 'showNewLeads', value: stats.newLeads, label: t('stat_new_leads') || 'New Leads', color: 'text-emerald-500' },
     { key: 'showConvertedLeads', value: stats.convertedLeads, label: t('stat_converted_leads') || 'Converted Leads', color: 'text-blue-500' },
-    { key: 'showIncome', value: formatPriceLocally(stats.income), label: t('stat_income') || 'Income', color: 'text-green-600' },
+    ...(isPro ? [{ key: 'showIncome', value: formatPriceLocally(stats.income), label: t('stat_income') || 'Income', color: 'text-green-600' }] : []),
     { key: 'showViews', value: stats.views, label: t('stat_views') || 'Views', color: 'text-purple-500' },
     { key: 'showActiveForms', value: stats.activeForms, label: t('stat_active_forms') || 'Active Forms', color: 'text-amber-500' }
   ];

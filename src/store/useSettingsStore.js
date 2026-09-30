@@ -109,6 +109,7 @@ export const useSettingsStore = create((set, get) => ({
   // SMTP & Mail
   smtp: {
     enabled: false,
+    provider: 'smtp',
     host: '',
     port: 587,
     encryption: 'tls',
@@ -116,7 +117,15 @@ export const useSettingsStore = create((set, get) => ({
     password: '',
     from_email: '',
     from_name: '',
-    send_admin_email: true
+    send_admin_email: true,
+    sendgrid_api_key: '',
+    mailgun_api_key: '',
+    mailgun_domain: '',
+    ses_access_key: '',
+    ses_secret_key: '',
+    ses_region: 'us-east-1',
+    brevo_api_key: '',
+    postmark_token: '',
   },
   email_templates: [
     {
@@ -133,10 +142,35 @@ export const useSettingsStore = create((set, get) => ({
     }
   ],
 
+  // Live Chat Widget
+  chatWidget: {
+    enabled: false,
+    title: 'Live Chat',
+    greeting: 'Hello! 👋 How can we help you today?',
+    primaryColor: '#d4af37',
+    position: 'bottom-left',
+    availabilityMode: 'always_online', // 'always_online' | 'schedule' | 'manual_offline'
+    schedule: {
+      mon: { enabled: true, start: '09:00', end: '18:00' },
+      tue: { enabled: true, start: '09:00', end: '18:00' },
+      wed: { enabled: true, start: '09:00', end: '18:00' },
+      thu: { enabled: true, start: '09:00', end: '18:00' },
+      fri: { enabled: true, start: '09:00', end: '18:00' },
+      sat: { enabled: false, start: '10:00', end: '16:00' },
+      sun: { enabled: false, start: '10:00', end: '16:00' },
+    },
+    offlineTitle: 'Leave us a message',
+    offlineGreeting: 'We are currently offline. Please leave your contacts and question, and we will get back to you as soon as possible!',
+    offlineContactFields: 'both', // 'both' | 'email' | 'phone'
+    offlineAutoCreateLead: true,
+    pulsate: true,
+  },
+
   // Actions
   setGeneral: (updates) => set((state) => ({ ...state, ...updates, isDirty: true })),
   setAbandonedForms: (updates) => set((state) => ({ abandonedForms: { ...state.abandonedForms, ...updates }, isDirty: true })),
   setFloatingButton: (updates) => set((state) => ({ floatingButton: { ...state.floatingButton, ...updates }, isDirty: true })),
+  setChatWidget: (updates) => set((state) => ({ chatWidget: { ...state.chatWidget, ...updates }, isDirty: true })),
   setSecurityCaptchas: (captchas) => set({ securityCaptchas: captchas, isDirty: true }),
   setTags: (tags) => set({ tags, isDirty: true }),
   setStatuses: (statuses) => set({ statuses, isDirty: true }),
@@ -221,10 +255,48 @@ export const useSettingsStore = create((set, get) => ({
       const floatingButton = (rawFloating && typeof rawFloating === 'object' && !Array.isArray(rawFloating))
         ? { ...defaultFloating, ...rawFloating }
         : defaultFloating;
+
+      const defaultSchedule = {
+        mon: { enabled: true, start: '09:00', end: '18:00' },
+        tue: { enabled: true, start: '09:00', end: '18:00' },
+        wed: { enabled: true, start: '09:00', end: '18:00' },
+        thu: { enabled: true, start: '09:00', end: '18:00' },
+        fri: { enabled: true, start: '09:00', end: '18:00' },
+        sat: { enabled: false, start: '10:00', end: '16:00' },
+        sun: { enabled: false, start: '10:00', end: '16:00' },
+      };
+
+      const defaultChat = {
+        enabled: false,
+        title: 'Live Chat',
+        greeting: 'Hello! 👋 How can we help you today?',
+        primaryColor: '#d4af37',
+        position: 'bottom-left',
+        availabilityMode: 'always_online',
+        schedule: defaultSchedule,
+        offlineTitle: 'Leave us a message',
+        offlineGreeting: 'We are currently offline. Please leave your contacts and question, and we will get back to you as soon as possible!',
+        offlineContactFields: 'both',
+        offlineAutoCreateLead: true,
+        pulsate: true,
+      };
+      const rawChat = res?.chat_widget;
+      let chatWidget = defaultChat;
+      if (rawChat && typeof rawChat === 'object' && !Array.isArray(rawChat)) {
+        chatWidget = {
+          ...defaultChat,
+          ...rawChat,
+          schedule: {
+            ...defaultSchedule,
+            ...(rawChat.schedule && typeof rawChat.schedule === 'object' ? rawChat.schedule : {}),
+          },
+        };
+      }
+
       const securityCaptchas = res?.security?.captchas || get().securityCaptchas;
       const allowedRoles = res?.permissions?.allowed_roles || [];
       const managers = res?.permissions?.managers || [];
-      const smtp = res?.smtp || get().smtp;
+      const smtp = res?.smtp ? { ...get().smtp, ...res.smtp } : get().smtp;
       const email_templates = res?.email_templates || get().email_templates;
       
       const defErrors = getDefaultErrorTranslations(t);
@@ -256,6 +328,7 @@ export const useSettingsStore = create((set, get) => ({
         generalAutoDeleteTasksDays: general.auto_delete_tasks_days || 30,
         abandonedForms,
         floatingButton,
+        chatWidget,
         securityCaptchas,
         allowedRoles,
         managers,
@@ -312,6 +385,7 @@ export const useSettingsStore = create((set, get) => ({
           },
           abandoned_forms: state.abandonedForms,
           floating_button: state.floatingButton,
+          chat_widget: state.chatWidget,
           security: { captchas: state.securityCaptchas },
           permissions: { allowed_roles: state.allowedRoles, managers: state.managers },
           error_translations: state.errorTranslations,

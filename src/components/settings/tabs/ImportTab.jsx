@@ -75,10 +75,10 @@ export function ImportTab() {
   const closeModal = () => setActiveModal(null);
 
   return (
-    <div className="p-8 h-full overflow-y-auto">
+    <div className="p-3 sm:p-6 md:p-8 h-full overflow-y-auto">
       <div className="max-w-4xl">
         <h2 className="text-xl font-bold text-gray-900 mb-2">{t('import_export') || 'Import / Export'}</h2>
-        <p className="text-sm text-gray-500 mb-8">{t('import_export_desc') || 'Import leads and forms from external files or other systems.'}</p>
+        <p className="text-sm text-gray-500 mb-4 sm:mb-8">{t('import_export_desc') || 'Import leads and forms from external files or other systems.'}</p>
 
         {/* File Upload Section */}
         <div className="mb-10">

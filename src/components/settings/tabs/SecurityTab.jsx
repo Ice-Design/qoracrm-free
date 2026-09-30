@@ -20,11 +20,11 @@ export function SecurityTab() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="p-8 border-b border-gray-100 shrink-0">
+      <div className="p-3 sm:p-6 md:p-8 border-b border-gray-100 shrink-0">
         <div className="text-lg font-bold text-gray-900 mb-1">{t('tab_security') || 'Security Settings'}</div>
         <p className="text-sm text-gray-500">{t('security_desc') || 'Configure third-party CAPTCHA integrations to protect your forms from spam.'}</p>
       </div>
-      <div className="flex-1 overflow-y-auto p-8 space-y-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
 
         <div className="grid grid-cols-1 gap-8 mb-8">
           <div className="space-y-8">
